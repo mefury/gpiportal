@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../controllers/management_controller.dart';
+import 'add_management_page.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final managementController = Get.put(ManagementController());
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('About GPI'),
@@ -66,6 +71,135 @@ class AboutPage extends StatelessWidget {
                   
                   _buildSection(
                     context,
+                    'Our Management',
+                    '',
+                  ),
+
+                  // Replace the old management cards with this:
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: Obx(() {
+                      if (managementController.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (managementController.managementList.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.people_outline,
+                                size: 64,
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No management members found',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withOpacity(0.5),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: managementController.managementList.length,
+                        itemBuilder: (context, index) {
+                          final member = managementController.managementList[index];
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (member.imageUrl != null)
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.horizontal(
+                                        left: Radius.circular(16),
+                                      ),
+                                      child: SizedBox(
+                                        width: 160,
+                                        child: Image.network(
+                                          member.imageUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              color: Theme.of(context).colorScheme.surfaceVariant,
+                                              child: const Icon(Icons.person, size: 64),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      member.name,
+                                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      member.position,
+                                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                            color: Theme.of(context).colorScheme.primary,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete_outline),
+                                                onPressed: () => managementController.deleteManagement(
+                                                  member.id,
+                                                  member.imageUrl,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            member.bio,
+                                            style: Theme.of(context).textTheme.bodyLarge,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                  
+                  _buildSection(
+                    context,
                     'Our Vision',
                     'To be a premier institution in technical education, producing skilled professionals who contribute to the technological advancement and industrial growth of Bangladesh.',
                   ),
@@ -93,7 +227,7 @@ class AboutPage extends StatelessWidget {
                   _buildSection(
                     context,
                     'Facilities',
-                    '• Modern Computer Labs\n'
+                    '�� Modern Computer Labs\n'
                     '• Well-equipped Workshops\n'
                     '• Digital Library\n'
                     '• Smart Classrooms\n'
@@ -145,6 +279,10 @@ class AboutPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.to(() => const AddManagementPage()),
+        child: const Icon(Icons.add),
       ),
     );
   }
