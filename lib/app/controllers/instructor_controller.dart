@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:html' as html;
@@ -21,7 +22,7 @@ class InstructorController extends GetxController {
       final response = await Supabase.instance.client
           .from('instructors')
           .select()
-          .order('name');
+          .order('created_at', ascending: false);
       
       instructors.value = (response as List<dynamic>)
           .map((json) => Instructor.fromJson(json))
@@ -122,6 +123,44 @@ class InstructorController extends GetxController {
         'Failed to delete instructor',
         snackPosition: SnackPosition.BOTTOM,
       );
+    }
+  }
+
+  Future<void> updateInstructor(Map<String, dynamic> instructor) async {
+    try {
+      isLoading.value = true;
+      
+      await Supabase.instance.client
+          .from('instructors')
+          .update({
+            'name': instructor['name'],
+            'position': instructor['position'],
+            'phone': instructor['phone'],
+            'email': instructor['email'],
+            'image_url': instructor['image_url'],
+          })
+          .eq('id', instructor['id']);
+      
+      await fetchInstructors();
+      
+      Get.back();
+      Get.snackbar(
+        'Success',
+        'Instructor updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.shade100,
+        colorText: Colors.green.shade900,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update instructor: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: Colors.red.shade900,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 } 

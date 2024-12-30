@@ -4,9 +4,11 @@ import 'package:image_picker_web/image_picker_web.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:html' as html;
 import '../../controllers/instructor_controller.dart';
+import '../../models/instructor.dart';
 
 class AddInstructorPage extends StatefulWidget {
-  const AddInstructorPage({super.key});
+  final Instructor? instructor;
+  const AddInstructorPage({super.key, this.instructor});
 
   @override
   State<AddInstructorPage> createState() => _AddInstructorPageState();
@@ -21,6 +23,21 @@ class _AddInstructorPageState extends State<AddInstructorPage> {
   final _controller = Get.find<InstructorController>();
   html.File? _selectedImage;
   String? _imagePreviewUrl;
+  final _formFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.instructor != null) {
+      _nameController.text = widget.instructor!.name;
+      _positionController.text = widget.instructor!.position;
+      _phoneController.text = widget.instructor!.phone;
+      _emailController.text = widget.instructor!.email;
+      if (widget.instructor!.imageUrl != null) {
+        _imagePreviewUrl = widget.instructor!.imageUrl;
+      }
+    }
+  }
 
   Future<void> _pickImage() async {
     try {
@@ -39,28 +56,45 @@ class _AddInstructorPageState extends State<AddInstructorPage> {
   Future<void> _submitInstructor() async {
     if (!_formKey.currentState!.validate()) return;
 
-    String? imageUrl;
-    if (_selectedImage != null) {
-      imageUrl = await _controller.uploadImage(_selectedImage!);
+    try {
+      String? imageUrl = _imagePreviewUrl;
+      if (_selectedImage != null) {
+        imageUrl = await _controller.uploadImage(_selectedImage!);
+        if (imageUrl == null) return;
+      }
+
+      final instructor = {
+        'id': widget.instructor?.id ?? const Uuid().v4(),
+        'name': _nameController.text.trim(),
+        'position': _positionController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'email': _emailController.text.trim(),
+        'image_url': imageUrl ?? widget.instructor?.imageUrl,
+      };
+
+      if (widget.instructor != null) {
+        await _controller.updateInstructor(instructor);
+      } else {
+        await _controller.addInstructor(instructor);
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to save instructor: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
-
-    final instructor = {
-      'id': const Uuid().v4(),
-      'name': _nameController.text.trim(),
-      'position': _positionController.text.trim(),
-      'phone': _phoneController.text.trim(),
-      'email': _emailController.text.trim(),
-      'image_url': imageUrl,
-    };
-
-    await _controller.addInstructor(instructor);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Instructor'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
+        title: Text(widget.instructor != null ? 'Edit Instructor' : 'Add Instructor'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -71,33 +105,65 @@ class _AddInstructorPageState extends State<AddInstructorPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_imagePreviewUrl != null)
-                Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    Image.network(
-                      _imagePreviewUrl!,
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => setState(() {
-                        _selectedImage = null;
-                        _imagePreviewUrl = null;
-                      }),
-                    ),
-                  ],
+                Center(
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 200,
+                        width: 200,
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: NetworkImage(_imagePreviewUrl!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          child: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => setState(() {
+                              _selectedImage = null;
+                              _imagePreviewUrl = null;
+                            }),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 )
               else
-                OutlinedButton.icon(
-                  onPressed: _pickImage,
-                  icon: const Icon(Icons.add_photo_alternate),
-                  label: const Text('Add Profile Photo'),
+                Center(
+                  child: Container(
+                    height: 200,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                      ),
+                    ),
+                    child: OutlinedButton.icon(
+                      onPressed: _pickImage,
+                      icon: const Icon(Icons.add_photo_alternate),
+                      label: const Text('Add Profile Photo'),
+                      style: OutlinedButton.styleFrom(
+                        shape: const CircleBorder(),
+                      ),
+                    ),
+                  ),
                 ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
+                focusNode: _formFocus,
+                autofocus: false,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   labelText: 'Full Name',
                   border: OutlineInputBorder(),
@@ -171,7 +237,7 @@ class _AddInstructorPageState extends State<AddInstructorPage> {
                           width: 24,
                           child: CircularProgressIndicator(),
                         )
-                      : const Text('ADD INSTRUCTOR'),
+                      : Text(widget.instructor != null ? 'UPDATE' : 'ADD INSTRUCTOR'),
                 )),
               ),
             ],
@@ -187,6 +253,7 @@ class _AddInstructorPageState extends State<AddInstructorPage> {
     _positionController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    _formFocus.dispose();
     super.dispose();
   }
 } 
