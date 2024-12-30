@@ -107,6 +107,17 @@ class InstructorsPage extends StatelessWidget {
                                   ),
                                 ),
                                 IconButton(
+                                  icon: const Icon(Icons.edit_outlined),
+                                  onPressed: () {
+                                    FocusManager.instance.primaryFocus?.unfocus();
+                                    Get.to(
+                                      () => AddInstructorPage(instructor: instructor),
+                                      transition: Transition.fadeIn,
+                                      duration: const Duration(milliseconds: 300),
+                                    );
+                                  },
+                                ),
+                                IconButton(
                                   icon: const Icon(Icons.delete_outline),
                                   onPressed: () => controller.deleteInstructor(
                                     instructor.id,

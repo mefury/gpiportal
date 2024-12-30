@@ -47,129 +47,144 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).colorScheme.surface,
-                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.primary.withOpacity(0.15),
+              Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+              Theme.of(context).colorScheme.primary.withOpacity(0.15),
+            ],
+            stops: const [0.0, 0.5, 1.0],
+            transform: GradientRotation(45 * 3.141592 / 180),
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                      Theme.of(context).colorScheme.surface.withOpacity(0.75),
+                    ],
+                  ),
+                ),
+                child: GridView.count(
+                  crossAxisCount: size.width < 600 ? 2 : 3, // 3 columns for larger screens
+                  padding: EdgeInsets.all(buttonPadding),
+                  mainAxisSpacing: buttonPadding,
+                  crossAxisSpacing: buttonPadding,
+                  childAspectRatio: 1.1, // Make buttons slightly taller than wide
+                  children: [
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.announcement,
+                      label: 'Announcements',
+                      onTap: () => Get.toNamed(Routes.ANNOUNCEMENTS),
+                      isSmallScreen: isSmallScreen,
+                    ),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.calendar_today,
+                      label: 'Class Routine',
+                      onTap: () => Get.toNamed('/class-routine'),
+                      isSmallScreen: isSmallScreen,
+                    ),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.event,
+                      label: 'Events',
+                      onTap: () => Get.toNamed('/events'),
+                      isSmallScreen: isSmallScreen,
+                    ),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.people,
+                      label: 'Instructors',
+                      onTap: () => Get.toNamed('/instructors'),
+                      isSmallScreen: isSmallScreen,
+                    ),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.school,
+                      label: 'Admission',
+                      onTap: () => Get.toNamed('/admission'),
+                      isSmallScreen: isSmallScreen,
+                    ),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.info,
+                      label: 'About',
+                      onTap: () => Get.toNamed('/about'),
+                      isSmallScreen: isSmallScreen,
+                    ),
                   ],
                 ),
               ),
-              child: GridView.count(
-                crossAxisCount: size.width < 600 ? 2 : 3, // 3 columns for larger screens
-                padding: EdgeInsets.all(buttonPadding),
-                mainAxisSpacing: buttonPadding,
-                crossAxisSpacing: buttonPadding,
-                childAspectRatio: 1.1, // Make buttons slightly taller than wide
+            ),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    offset: const Offset(0, -4),
+                    blurRadius: 16,
+                  ),
+                ],
+              ),
+              child: Column(
                 children: [
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.announcement,
-                    label: 'Announcements',
-                    onTap: () => Get.toNamed(Routes.ANNOUNCEMENTS),
-                    isSmallScreen: isSmallScreen,
+                  Text(
+                    'Greenland Polytechnic Institute',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.calendar_today,
-                    label: 'Class Routine',
-                    onTap: () => Get.toNamed('/class-routine'),
-                    isSmallScreen: isSmallScreen,
+                  const SizedBox(height: 4),
+                  Text(
+                    'Institute code: 50454 EIIN:139610',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.event,
-                    label: 'Events',
-                    onTap: () => Get.toNamed('/events'),
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.people,
-                    label: 'Instructors',
-                    onTap: () => Get.toNamed('/instructors'),
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.school,
-                    label: 'Admission',
-                    onTap: () => Get.toNamed('/admission'),
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  _buildMenuButton(
-                    context,
-                    icon: Icons.info,
-                    label: 'About',
-                    onTap: () => Get.toNamed('/about'),
-                    isSmallScreen: isSmallScreen,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildSocialButton(
+                        context,
+                        icon: Icons.facebook,
+                        onTap: () => _launchUrl('https://www.facebook.com/GreenlandPolytechnicInstitute/'),
+                      ),
+                      const SizedBox(width: 24),
+                      _buildSocialButton(
+                        context,
+                        icon: Icons.language,
+                        onTap: () => _launchUrl('https://www.greenlandpolytechnic.com/'),
+                      ),
+                      const SizedBox(width: 24),
+                      _buildSocialButton(
+                        context,
+                        icon: Icons.location_on,
+                        onTap: () => _launchUrl('https://maps.app.goo.gl/7oqNwPzcC6MoDunNA'),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  offset: const Offset(0, -4),
-                  blurRadius: 16,
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Greenland Polytechnic Institute',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Institute code: 50454 EIIN:139610',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSocialButton(
-                      context,
-                      icon: Icons.facebook,
-                      onTap: () => _launchUrl('https://www.facebook.com/GreenlandPolytechnicInstitute/'),
-                    ),
-                    const SizedBox(width: 24),
-                    _buildSocialButton(
-                      context,
-                      icon: Icons.language,
-                      onTap: () => _launchUrl('https://www.greenlandpolytechnic.com/'),
-                    ),
-                    const SizedBox(width: 24),
-                    _buildSocialButton(
-                      context,
-                      icon: Icons.location_on,
-                      onTap: () => _launchUrl('https://maps.app.goo.gl/7oqNwPzcC6MoDunNA'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -181,50 +196,57 @@ class HomePage extends StatelessWidget {
     required VoidCallback onTap,
     required bool isSmallScreen,
   }) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Card(
+        elevation: 2,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              Future.microtask(onTap);
+            },
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).cardTheme.color!,
-                Theme.of(context).cardTheme.color!.withOpacity(0.95),
-              ],
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).cardTheme.color!,
+                    Theme.of(context).cardTheme.color!.withOpacity(0.95),
+                  ],
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(isSmallScreen ? 12 : 14),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      icon, 
+                      size: isSmallScreen ? 32 : 36,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  SizedBox(height: isSmallScreen ? 12 : 14),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(isSmallScreen ? 12 : 14),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon, 
-                  size: isSmallScreen ? 32 : 36,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              SizedBox(height: isSmallScreen ? 12 : 14),
-              Text(
-                label, 
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 15,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  letterSpacing: 0.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
           ),
         ),
       ),
